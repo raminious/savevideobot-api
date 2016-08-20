@@ -1,0 +1,16 @@
+{
+  "service": {
+    "downloader": {
+      "cdn": [
+        { "id": "sgv-01", "url": "http://127.0.0.1:19001" },
+        { "id": "sgv-02", "url": "http://127.0.0.1:19001" }
+      ]
+    }
+  },
+
+  "database": {
+    "mongo": {
+      "url": "mongodb://localhost:27017/savevideobot-api"
+    }
+  }
+}
