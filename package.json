@@ -19,6 +19,7 @@
     "koa-ratelimit": "^2.3.0",
     "koa-response-time": "^1.0.2",
     "koa-router": "^5.4.0",
+    "redis": "^2.6.2",
     "superagent": "^2.2.0",
     "underscore": "^1.8.3"
   }
