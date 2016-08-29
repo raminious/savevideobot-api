@@ -29,7 +29,13 @@ module.exports = function api (opt) {
     try {
       yield next
     } catch(e) {
-      this.log('error', e.message, e.info)
+
+      // check application fatal errors
+      if (e instanceof TypeError)
+        return log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+
+      // errors throwed by app
+      log('error', e.message, e.info)
     }
   })
 
