@@ -29,9 +29,8 @@ module.exports = function api (opt) {
     try {
       yield next
     } catch(e) {
-
       // check application fatal errors
-      if (e instanceof TypeError)
+      if (e instanceof TypeError || e instanceof ReferenceError)
         return this.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
 
       // errors throwed by app
