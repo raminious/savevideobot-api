@@ -29,12 +29,17 @@ module.exports = function api (opt) {
     try {
       yield next
     } catch(e) {
+
+      if (process.env.NODE_ENV != 'production') console.log(e, e.stack)
+
       // check application fatal errors
       if (e instanceof TypeError || e instanceof ReferenceError)
-        return this.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+        this.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+      else
+        this.log('error', e.message, e.info) // errors throwed by app
 
-      // errors throwed by app
-      this.log('error', e.message, e.info)
+      this.status = e.status || 500
+      this.body = e.message || ''
     }
   })
 

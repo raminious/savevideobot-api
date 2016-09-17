@@ -9,7 +9,8 @@ const routes = {
     { path: 'access-token', auth: false },
   ],
   media: [
-    { path: 'info'},
+    { path: 'status', auth: false},
+    { path: 'explore'},
     { path: 'download'}
   ]
 };

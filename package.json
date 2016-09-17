@@ -20,8 +20,9 @@
     "koa-request-id": "^1.0.1",
     "koa-response-time": "^1.0.2",
     "koa-router": "^5.4.0",
-    "moment": "^2.14.1",
+    "moment": "^2.14.1",    
     "redis": "^2.6.2",
+    "request": "^2.74.0",
     "superagent": "^2.2.0",
     "underscore": "^1.8.3"
   }
