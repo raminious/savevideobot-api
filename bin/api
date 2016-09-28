@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const api = require('../');
+const program = require('commander')
+const pmx = require('pmx')
+const api = require('../')
 
 // options
 program
   .option('-H, --host <host>', 'specify the host [0.0.0.0]', '0.0.0.0')
   .option('-p, --port <port>', 'specify the port [17000]', '17000')
   .option('-b, --backlog <size>', 'specify the backlog size [511]', '511')
-  .parse(process.argv);
+  .parse(process.argv)
 
-const app = api();
+// integrate application with keymetrics.io
+pmx.init({
+  http: true,
+  http_latency: 200,
+  http_code: 500,
+  errors: true,
+  custom_probes: true,
+  network: true,
+  ports: true
+})
+
+const app = api()
 
 app.listen(program.port, program.host, ~~program.backlog, function () {
-  console.log('[ + ] Api Listening on %s:%s', program.host, program.port);
-});
+  console.log('[ + ] Api Listening on %s:%s', program.host, program.port)
+})
