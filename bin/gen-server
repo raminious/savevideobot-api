@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+const program = require('commander')
+const co = require('co')
+const chalk = require('chalk')
+const User = require('svb-core/lib/user')
+
+// options
+program
+  .option('-I, --ip <ip>', 'specify the downloader ip')
+  .parse(process.argv);
+
+const ip = program.ip
+
+if (ip == null) {
+	console.log('No downloader ip given')
+	process.exit(1)
+}
+
+const name = 'downloader_' + ip
+
+co(function*() {
+
+	let user = yield User.find({ name })
+
+	if (user == null) {
+		user = yield User.create({ name, username: ip, role: 'admin' })
+	}
+
+	console.log(chalk.bold.green('\nDownloader server generated:\n'))
+	console.log(chalk.bold.blue('Name: '), name)
+	console.log(chalk.bold.blue('Ip: '), ip)
+	console.log(chalk.bold.red('Access token: ' + user.access_token))
+	console.log('\nTo setup downloader do the following:')
+	console.log('1- Put downloader info into api config.json')
+	console.log('2- Put downloader access_token into its config.json\n\n')
+	process.exit(0)
+})
