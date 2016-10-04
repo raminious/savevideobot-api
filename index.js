@@ -20,9 +20,6 @@ module.exports = function api (opt) {
   // x-response-time
   app.use(responseTime())
 
-  // add request id to every request
-  app.use(require('koa-request-id')())
-
   // logger
   app.use(function* (next){
     this.log = log
