@@ -9,7 +9,6 @@ module.exports = function (level, message, info) {
   .post(config.log.url)
   .auth(config.log.auth.username, config.log.auth.password, { type: 'auto' })
   .send({
-    id: this.id,
     level,
     short_message: message,
     from: 'api'
