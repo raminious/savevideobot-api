@@ -10,6 +10,9 @@ const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
 
+// include garbage collector for media collecion
+const gc = require('./util/gc/media')
+
 module.exports = function api (opt) {
 
   let app = koa()

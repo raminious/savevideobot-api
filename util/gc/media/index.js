@@ -2,6 +2,7 @@
 
 const co = require('co')
 const moment = require('moment')
+const CronJob = require('cron').CronJob
 const Media = require('svb-core/lib/media')
 
 function GC() {
@@ -18,9 +19,13 @@ function GC() {
   }
 }
 
-co(function*() {
-  yield (new GC).run()
+/**
+ * cronjob for downserver check
+ */
+new CronJob({
+  cronTime: '00 00 12 * * *',
+  onTick: co.wrap(function* () {
+    yield (new GC).run()
+  }),
+  start: true
 })
-
-
-
