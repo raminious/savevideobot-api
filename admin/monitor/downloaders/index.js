@@ -54,7 +54,7 @@ const monitor = function*() {
  * cronjob for downserver check
  */
 new CronJob({
-  cronTime: '* */10 * * * *',
+  cronTime: '00 */10 * * * *',
   onTick: co.wrap(function* () {
     yield monitor()
   }),
