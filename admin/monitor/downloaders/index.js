@@ -14,9 +14,6 @@ const report = require('../../report/telegram')
 // list of downloaders
 const list = config.service.downloader.cdn
 
-// kue url
-const kueUrl = process.env.NODE_ENV == 'production'? '19300/kue/stats': '19300/stats'
-
 // check kue health
 const monitor = function*() {
 
@@ -25,7 +22,7 @@ const monitor = function*() {
 	for (let i = 0; i <= list.length - 1; i++) {
 
 		const server = list[i]
-		const url = server.url.match('^http.*:')[0] + kueUrl
+		const url = server.url.match('^http.*:')[0] + '19300/stats'
 
 		try {
 			const response = yield agent.get(url)
@@ -42,7 +39,7 @@ const monitor = function*() {
 			}
 		}
 		catch (e) {
-			message.push('*[ x ] Job server ' + server.id + ' not responsed.*')
+			message.push('*[ x ] Job server ' + server.id + ' not responsed.*\n\n')
 		}
 	}
 
