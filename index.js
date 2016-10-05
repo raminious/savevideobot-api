@@ -9,8 +9,12 @@ const koa = require('koa')
 const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
+const config = require('./config.json')
 
-// include garbage collector for media collecion
+// enable system monitors
+require('./admin/monitor')
+
+// enable media garbage collector
 const gc = require('./util/gc/media')
 
 module.exports = function api (opt) {
@@ -56,7 +60,7 @@ module.exports = function api (opt) {
   })
 
   // check health of app (authentication enabled)
-  app.use(mount('/ping', auth({ name: 'savevideobot', pass: 'sep123$%^' })))
+  app.use(mount('/ping', auth({ name: config.auth.username, pass: config.auth.password })))
   app.use(health())
 
   //routes
