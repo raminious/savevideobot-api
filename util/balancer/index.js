@@ -61,8 +61,8 @@ balancer.down = function* (serverId) {
   // increase down counter
   monitor[serverId].down++
 
-  // disable servers that not response for two times in one minutes (why one? see cronjob)
-  if (monitor[serverId].down > 2) {
+  // disable servers that not response for two times in three minutes (why three? see cronjob)
+  if (monitor[serverId].down == 2) {
 
     // set downtime
     monitor[serverId].downfrom = moment().format()
@@ -82,7 +82,7 @@ balancer.down = function* (serverId) {
  * cronjob for downserver check
  */
 new CronJob({
-  cronTime: '00 */5 * * * *',
+  cronTime: '00 */3 * * * *',
   onTick: co.wrap(function* () {
 
     const servers = _.uniq(cdn, server => server.id)
