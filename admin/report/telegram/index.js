@@ -9,7 +9,7 @@ const telegram = {}
 
 telegram.sendMessage = function (text) {
 
-	text = text + '\n\n' + 'Time: ' + moment().format('Y/M/D HH:MM:SS')
+	text = text + '\n\n' + 'Time: ' + moment().format('Y/M/D HH:mm:ss')
 	agent
 	  .get(url + '/sendMessage')
 	  .query({
