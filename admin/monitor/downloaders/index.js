@@ -56,5 +56,5 @@ new CronJob({
   onTick: co.wrap(function* () {
     yield monitor()
   }),
-  start: true
+  start: process.env.pm_id? (process.env.pm_id == 0? true: false): true
 })
