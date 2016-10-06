@@ -26,6 +26,7 @@ const monitor = function*() {
 
 		try {
 			const response = yield agent.get(url)
+				.retry(5)
 				.auth(config.auth.username, config.auth.password, { auto: true })
 
 			const result = response.body
