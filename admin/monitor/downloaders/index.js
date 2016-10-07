@@ -31,7 +31,7 @@ const monitor = function*() {
 
 			const result = response.body
 
-			if (~~result.inactiveCount > 5) {
+			if (~~result.activeCount > 5 || ~~result.inactiveCount > 5) {
 				let data = 'Inactive count: ' + result.inactiveCount +
 					'\nActive count: ' + result.activeCount +
 					'\nFailed count: ' + result.failedCount
