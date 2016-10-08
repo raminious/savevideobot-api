@@ -31,7 +31,7 @@ const monitor = function*() {
 
 			const result = response.body
 
-			if (~~result.activeCount > 3 || ~~result.inactiveCount > 3) {
+			if (~~result.activeCount > 3 || ~~result.inactiveCount > 0) {
 				let data = 'Inactive count: ' + result.inactiveCount +
 					'\nActive count: ' + result.activeCount +
 					'\nFailed count: ' + result.failedCount
@@ -52,7 +52,7 @@ const monitor = function*() {
  * cronjob for downserver check
  */
 new CronJob({
-  cronTime: '00 */5 * * * *',
+  cronTime: '00 */10 * * * *',
   onTick: co.wrap(function* () {
     yield monitor()
   }),
