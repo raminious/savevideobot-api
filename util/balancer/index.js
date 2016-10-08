@@ -107,7 +107,9 @@ new CronJob({
           '\ndowntime: ' + moment.utc(moment().diff(monitor[server.id].downfrom)).format('HH:mm:ss'))
 
         // enable server
+        monitor[server.id].down = 0
         monitor[server.id].downfrom = 0
+
         _.each(cdn, (item, key) => {
           if (item.id == server.id) cdn[key].active = true
         })
@@ -125,7 +127,8 @@ new CronJob({
 
     // reset downtime counters
     _.each(servers, server => {
-      monitor[server.id].down = 0
+      if (server.active)
+        monitor[server.id].down = 0
     })
 
   }),
