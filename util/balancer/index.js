@@ -39,7 +39,7 @@ balancer.pop = function* (serverId) {
   if (serverId != null)
   {
     let server = _.find(list, (item) => {
-      return item.id == serverId
+      return item.id == serverId && item.active == true
     })
 
     if (server != null)
@@ -65,6 +65,7 @@ balancer.down = function* (serverId) {
   if (monitor[serverId].down == 2) {
 
     // set downtime
+    monitor[serverId].down = -1000
     monitor[serverId].downfrom = moment().format()
 
     // disable all
