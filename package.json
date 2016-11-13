@@ -14,6 +14,8 @@
     "co": "^4.6.0",
     "commander": "^2.9.0",
     "cron": "^1.1.0",
+    "googleapis": "^14.2.0",
+    "isemail": "^2.2.1",
     "kerberos": "0.0.21",
     "koa": "^1.2.1",
     "koa-basic-auth": "^1.1.2",
