@@ -16,7 +16,7 @@ const routes = {
     { path: 'download'}
   ],
   client: [
-    { path: 'version', auth: false }
+    { path: 'version' }
   ]
 };
 
