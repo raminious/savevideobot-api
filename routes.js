@@ -8,6 +8,7 @@ const routes = {
   user: [
     { path: 'signup', auth: false },
     { path: 'access-token', auth: false },
+    { path: 'profile' }
   ],
   media: [
     { path: 'update'},
