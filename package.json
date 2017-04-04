@@ -9,6 +9,7 @@
   "author": "Ramin Mousavi <Ramin.Mousavy@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "bluebird": "^3.4.1",
     "chalk": "^1.1.3",
     "co": "^4.6.0",

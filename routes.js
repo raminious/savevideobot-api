@@ -14,7 +14,8 @@ const routes = {
     { path: 'update'},
     { path: 'status'},
     { path: 'explore'},
-    { path: 'download'}
+    { path: 'download'},
+    { path: 'list' }
   ],
   client: [
     { path: 'version' }
