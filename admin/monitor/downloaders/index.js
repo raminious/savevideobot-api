@@ -22,25 +22,28 @@ const monitor = function*() {
 	for (let i = 0; i <= list.length - 1; i++) {
 
 		const server = list[i]
-		const url = server.url.match('^http.*:')[0] + '19300/stats'
+		const url = server.url + '/stats'
 
 		try {
 			const response = yield agent.get(url)
-				.retry(5)
+				.retry(2)
 				.auth(config.auth.username, config.auth.password, { auto: true })
 
 			const result = response.body
+			const stats = result.stats
+			const system = result.system
 
-			if (~~result.activeCount > 3 || ~~result.inactiveCount > 0) {
-				let data = 'Inactive count: ' + result.inactiveCount +
-					'\nActive count: ' + result.activeCount +
-					'\nFailed count: ' + result.failedCount
+			if (~~stats.active > 3 || ~~stats.delayed > 0) {
+				let data = 'Inactive count: ' + stats.delayed +
+					'\nActive count: ' + stats.active +
+					'\nFailed count: ' + stats.failed +
+					'\n\nMemory: ' + system.used + '/' + system.total
 
-				message.push('*[ i ] Job server report for ' + server.id + '*:\n' + data + '\n\n')
+				message.push('*[ i ] Job report for ' + server.id + '*:\n' + data + '\n\n')
 			}
 		}
 		catch (e) {
-			message.push('*[ x ] Job server ' + server.id + ' not responsed.*\n\n')
+			message.push('*[ x ] Job server ' + server.id + ' not responsed.*\n' + e.message + '\n\n')
 		}
 	}
 

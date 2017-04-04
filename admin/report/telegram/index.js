@@ -8,8 +8,6 @@ const url = 'https://api.telegram.org/bot118259322:AAGI0vKf2DGRtwUhrNCM4nRPkWkGJ
 const telegram = {}
 
 telegram.sendMessage = function (text) {
-
-	text = text + '\n\n' + 'Time: ' + moment().format('Y/M/D HH:mm:ss')
 	agent
 	  .get(url + '/sendMessage')
 	  .query({
