@@ -41,18 +41,20 @@ module.exports = function api (opt) {
 
       // app requesting http authentication
       if (e.status == 401) {
-        this.status = 401;
+        this.status = 401
         this.set('WWW-Authenticate', 'Basic');
         this.body = 'authentication required';
         return false
       }
 
-      if (process.env.NODE_ENV != 'production')
+      if (process.env.NODE_ENV != 'production') {
         console.log(e, e.stack)
+      }
 
       // check application fatal errors
-      if (e instanceof TypeError || e instanceof ReferenceError)
+      if (e instanceof TypeError || e instanceof ReferenceError) {
         this.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+      }
 
       this.status = e.status || 400
       this.body = e.message || 'Internal Server Error'

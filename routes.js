@@ -11,11 +11,12 @@ const routes = {
     { path: 'profile' }
   ],
   media: [
-    { path: 'update'},
-    { path: 'status'},
-    { path: 'explore'},
-    { path: 'download'},
-    { path: 'list' }
+    { path: 'update' },
+    { path: 'status' },
+    { path: 'explore' },
+    { path: 'download' },
+    { path: 'list' },
+    { path: 'live', auth: false }
   ],
   client: [
     { path: 'version' }
