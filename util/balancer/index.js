@@ -1,14 +1,9 @@
-'use strict'
-
 const _ = require('underscore')
 const co = require('co')
 const moment = require('moment')
+const agent = require('superagent')
 const CronJob = require('cron').CronJob
 const config = require('../../config.json')
-
-const agent = require('superagent')
-require('superagent-retry')(agent)
-
 const report = require('../../admin/report/telegram')
 
 // list of all cdn
@@ -17,8 +12,9 @@ const monitor = {}
 
 // recreate list depend on servers weight
 _.each(config.service.downloader.cdn, server => {
-  for (let i = 1; i <= (server.weight || 1); i++)
+  for (let i = 1; i <= (server.weight || 1); i++) {
     cdn.push({ id: server.id, url: server.url, active: true })
+  }
 
   monitor[server.id] = { down: 0, downfrom: 0 }
 })
@@ -31,7 +27,7 @@ const balancer = {}
 /*
  * Return the server at top of the list and turn it over
  */
-balancer.pop = function* (serverId) {
+balancer.pop = async function (serverId) {
 
   // filter active servers
   const list = _.filter(cdn, server => server.active == true )
@@ -56,7 +52,7 @@ balancer.pop = function* (serverId) {
 /*
  * mark server as down
  */
-balancer.down = function* (serverId) {
+balancer.down = async function (serverId) {
 
   // increase down counter
   monitor[serverId].down++
@@ -84,7 +80,7 @@ balancer.down = function* (serverId) {
  */
 new CronJob({
   cronTime: '00 */3 * * * *',
-  onTick: co.wrap(function* () {
+  onTick: co.wrap(async function () {
 
     const servers = _.uniq(cdn, server => server.id)
     const downs = _.filter(servers, server => server.active == false )
@@ -95,7 +91,7 @@ new CronJob({
       let response
 
       try {
-        response = yield agent
+        response = await agent
           .get(server.url + '/ping')
           .auth('savevideobot', 'sep123$%^', { auto: true })
       }

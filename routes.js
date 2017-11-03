@@ -1,8 +1,5 @@
-'use strict'
-
-const _ = require('underscore');
-
-const list = [{ path: './lib/authentication' }];
+const _ = require('underscore')
+const list = [{ path: './endpoint/authentication' }]
 
 const routes = {
   user: [
@@ -16,7 +13,7 @@ const routes = {
     { path: 'explore' },
     { path: 'download' },
     { path: 'list' },
-    { path: 'live', auth: false }
+    { path: 'live' }
   ],
   client: [
     { path: 'version' }
@@ -27,11 +24,11 @@ _.each(routes, (group, name) => {
   _.each(group, r => {
 
     let item = {
-      path: './lib/' + name + '/' + r.path
-    };
+      path: `./endpoint/${name}/${r.path}`
+    }
 
-    typeof r.auth === 'undefined'? list.push(item): list.unshift(item);
+    typeof r.auth === 'undefined' ? list.push(item) : list.unshift(item)
   })
-});
+})
 
-module.exports = list;
+module.exports = list

@@ -1,11 +1,9 @@
-'use strict'
-
+const Koa = require('koa')
 const responseTime = require('koa-response-time')
 const ratelimit = require('koa-ratelimit')
 const mount = require('koa-mount')
 const auth = require('koa-basic-auth')
 const health = require('koa-ping')
-const koa = require('koa')
 const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
@@ -17,9 +15,9 @@ require('./admin/monitor')
 // enable media garbage collector
 const gc = require('./util/gc/media')
 
-module.exports = function api (opt) {
+module.exports = function api(opt) {
 
-  let app = koa()
+  const app = new Koa()
 
   // trust proxy
   app.proxy = true
@@ -28,22 +26,22 @@ module.exports = function api (opt) {
   app.use(responseTime())
 
   // logger
-  app.use(function* (next){
-    this.log = log
-    yield* next
+  app.use(async function (ctx, next){
+    ctx.log = log
+    return await next()
   })
 
   // handle application errors
-  app.use(function *(next) {
+  app.use(async function(ctx, next) {
     try {
-      yield next
+      return await next()
     } catch(e) {
 
       // app requesting http authentication
       if (e.status == 401) {
-        this.status = 401
-        this.set('WWW-Authenticate', 'Basic');
-        this.body = 'authentication required';
+        ctx.status = 401
+        ctx.set('WWW-Authenticate', 'Basic');
+        ctx.body = 'authentication required';
         return false
       }
 
@@ -53,24 +51,22 @@ module.exports = function api (opt) {
 
       // check application fatal errors
       if (e instanceof TypeError || e instanceof ReferenceError) {
-        this.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+        ctx.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
       }
 
-      this.status = e.status || 400
-      this.body = e.message || 'Internal Server Error'
+      ctx.status = e.status || 400
+      ctx.body = e.message || 'Internal Server Error'
     }
   })
 
-  // check health of app (authentication enabled)
-  app.use(mount('/ping', auth({ name: config.auth.username, pass: config.auth.password })))
-  app.use(health())
-
   //routes
-  _.each(routes, r => app.use(mount(require(r.path))))
+  _.each(routes, r => app.use(
+    mount(require(r.path)))
+  )
 
-  app.use(function* (){
-    this.status = 404
-    this.body = 'savevideobot.com - api not found'
+  app.use(async function(ctx){
+    ctx.status = 404
+    ctx.body = 'savevideobot.com - api not found'
   })
 
   return app

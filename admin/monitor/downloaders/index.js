@@ -1,21 +1,15 @@
-'use strict'
-
-const co = require('co')
+const agent = require('superagent')
 const moment = require('moment')
 const CronJob = require('cron').CronJob
 const _ = require('underscore')
 const config = require('../../../config.json')
-
-const agent = require('superagent')
-require('superagent-retry')(agent)
-
 const report = require('../../report/telegram')
 
 // list of downloaders
 const list = config.service.downloader.cdn
 
 // check kue health
-const monitor = function*() {
+const monitor = async function() {
 
 	const message = []
 
@@ -25,7 +19,7 @@ const monitor = function*() {
 		const url = server.url + '/stats'
 
 		try {
-			const response = yield agent.get(url)
+			const response = await agent.get(url)
 				.retry(2)
 				.auth(config.auth.username, config.auth.password, { auto: true })
 
@@ -47,8 +41,9 @@ const monitor = function*() {
 		}
 	}
 
-	if (message.length > 0)
+	if (message.length > 0) {
 		report.sendMessage(message.join(''))
+	}
 }
 
 /**
@@ -56,8 +51,8 @@ const monitor = function*() {
  */
 new CronJob({
   cronTime: '00 */10 * * * *',
-  onTick: co.wrap(function* () {
-    yield monitor()
-  }),
-  start: process.env.pm_id? (process.env.pm_id == 0? true: false): true
+  onTick: async function () {
+    await monitor()
+  },
+  start: process.env.pm_id ? (process.env.pm_id == 0 ? true: false) : true
 })

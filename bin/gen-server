@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-
 const program = require('commander')
-const co = require('co')
 const chalk = require('chalk')
-const User = require('svb-core/lib/user')
+const User = require('../db/user')
 
 // options
 program
@@ -19,12 +17,12 @@ if (ip == null) {
 
 const name = 'downloader_' + ip
 
-co(function*() {
+async function() {
 
-	let user = yield User.find({ name })
+	let user = await User.find({ name })
 
 	if (user == null) {
-		user = yield User.create({ name, username: ip, role: 'admin' })
+		user = await User.create({ name, username: ip, role: 'admin' })
 	}
 
 	console.log(chalk.bold.green('\nDownloader server generated:\n'))
@@ -35,4 +33,4 @@ co(function*() {
 	console.log('1- Put downloader info into api config.json')
 	console.log('2- Put downloader access_token into its config.json\n\n')
 	process.exit(0)
-})
+}
