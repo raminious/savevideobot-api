@@ -1,11 +1,11 @@
 const client = require('../../adapters/redis')
 
-const prefix = 'svb_api_'
+const prefix = 'svb__api_'
 
 const Cache = {}
 
 Cache.find = async function(key) {
-  let data = await client.getAsync(prefix+key)
+  const data = await client.getAsync(prefix + key)
   return data ? JSON.parse(data) : null
 }
 

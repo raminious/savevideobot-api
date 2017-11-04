@@ -15,6 +15,11 @@ const routes = {
     { path: 'list' },
     { path: 'live' }
   ],
+  telegram: [
+    { path: 'integration' },
+    { path: 'add-bot' },
+    { path: 'remove-bot' }
+  ],
   client: [
     { path: 'version' }
   ]

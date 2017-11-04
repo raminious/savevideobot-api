@@ -16,6 +16,11 @@ const schema = new Schema({
   request_token: String,
   localization: String,
   role: String,
+  telegram_bot: {
+    token: String,
+    name: String,
+    username: String
+  }
 }, {
   timestamps: { created_at: 'created_at', updated_at: 'updated_at'}
 })
@@ -31,13 +36,15 @@ module.exports = {
     return await User.findOne({id: userId.toString()})
   },
   findByToken: async function(token) {
-
     // get user from cache
     let user = await cache.find('user_tkn_' + token)
 
     if (user == null) {
       user = await User.findOne({access_token: token})
-      if (user) cache.save('user_tkn_' + user.access_token, user, 3600)
+
+      if (user) {
+        cache.save('user_tkn_' + user.access_token, user, 3600)
+      }
     }
 
     return user

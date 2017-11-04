@@ -19,12 +19,7 @@ const authentication = async function (ctx, next) {
   ctx.assert(user != null, 401, 'invalid access-token')
 
   // make client info global
-  ctx.client = {
-  	platform,
-  	os,
-  	version
-  }
-
+  ctx.client = { platform, os, version }
   ctx.identity = user
 
   return await next()
