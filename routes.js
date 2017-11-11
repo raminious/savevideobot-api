@@ -8,6 +8,10 @@ const routes = {
     { path: 'profile' },
     { path: 'info' },
   ],
+  verify: [
+    { path: 'send-email' },
+    { path: 'verify-email' }
+  ],
   password: [
     { path: 'forget', auth: false },
     { path: 'reset', auth: false }
