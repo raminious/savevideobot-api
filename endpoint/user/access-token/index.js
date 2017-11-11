@@ -21,16 +21,7 @@ router.post('/user/access-token', bodyParser(), async function (ctx, next) {
   // get user access-token based on authentication method
   const user = await authentications[method].apply(ctx)
 
-  ctx.body = {
-    id: user._id,
-    name: user.name,
-    access_token: user.access_token,
-    username: user.username,
-    email: user.email,
-    telegram_bot: user.telegram_bot,
-    telegram_id: user.telegram_id,
-    localization: user.localization
-  }
+  ctx.body = User.getObject(user)
 })
 
 module.exports = app.use(router.routes())

@@ -5,7 +5,12 @@ const routes = {
   user: [
     { path: 'signup', auth: false },
     { path: 'access-token', auth: false },
-    { path: 'profile' }
+    { path: 'profile' },
+    { path: 'info' },
+  ],
+  password: [
+    { path: 'forget', auth: false },
+    { path: 'reset', auth: false }
   ],
   media: [
     { path: 'update' },

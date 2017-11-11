@@ -23,12 +23,7 @@ router.post('/user/signup', bodyParser(), async function (ctx, next) {
 
   user = await User.create({ name, email, password })
 
-  ctx.body = {
-    name: user.name,
-    token: user.access_token,
-    username: user.username,
-    email: user.email
-  }
+  ctx.body = User.getObject(user)
 })
 
 module.exports = app.use(router.routes())

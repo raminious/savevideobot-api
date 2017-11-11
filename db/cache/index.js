@@ -10,11 +10,15 @@ Cache.find = async function(key) {
 }
 
 Cache.save = function(key, data, expire) {
-  client.set(prefix+key, JSON.stringify(data))
+  client.set(prefix + key, JSON.stringify(data))
 
   if (~~expire > 0) {
     client.expire(prefix + key, expire)
   }
+}
+
+Cache.remove = function(key) {
+  client.del(prefix + key)
 }
 
 module.exports = Cache

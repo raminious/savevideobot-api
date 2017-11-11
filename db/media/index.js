@@ -43,8 +43,9 @@ module.exports = {
   },
   response: function(media) {
 
-    if (media == null)
+    if (media == null) {
       return null
+    }
 
     // check media is expired
     // queued media are expired after 10minutes
@@ -93,11 +94,13 @@ module.exports = {
   find: async function(criteria, start = 0, limit = null) {
     const list = Media
       .find(criteria)
+      .lean()
       .select(['_id', 'url', 'title', 'note', 'status', 'createdAt'])
       .skip(~~start)
 
-    if (limit != null)
+    if (limit != null) {
       list.limit(~~limit)
+    }
 
     list.sort({ createdAt: -1 })
 
@@ -106,6 +109,7 @@ module.exports = {
   live: async function(limit = 15) {
     const list = await Media
       .find({ status: 'ready' })
+      .lean()
       .skip(0)
       .limit(limit)
       .sort({ _id: -1 })
@@ -116,20 +120,22 @@ module.exports = {
     return await Media.count(criteria)
   },
   findById: async function(_id) {
-    const media = await Media.findOne({ _id })
+    const media = await Media
+      .findOne({ _id })
+      .lean()
+
     return this.response(media)
   },
   findByUrl: async function(url) {
     const media = await Media
-      .findOne({
-        url: url.trim()
-      })
+      .findOne({ url: url.trim() })
       .sort({ _id: -1})
+      .lean()
 
     return this.response(media)
   },
-  update: async function(condition, attrs, multi) {
-    return await Media.update(condition, attrs, { multi: true })
+  update: async function(condition, attrs, multi = true) {
+    return await Media.update(condition, attrs, { multi })
   },
   remove: async function(_id) {
     return await Media.remove({ _id })

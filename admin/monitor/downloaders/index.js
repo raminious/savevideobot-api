@@ -10,6 +10,9 @@ const list = config.service.downloader.cdn
 
 // check kue health
 const monitor = async function() {
+	if (process.env.NODE_ENV !== 'production') {
+		return false
+	}
 
 	const message = []
 

@@ -21,5 +21,12 @@ module.exports = {
       .then(Statistics.updateCounter(type), reject)
       .then(resolve, reject)
     })
+  },
+  update: async function(condition, attrs, multi) {
+    return new Promise((resolve, reject) => {
+      Log
+      .update(condition, attrs, { multi: true })
+      .then(resolve, reject)
+    })
   }
 }
