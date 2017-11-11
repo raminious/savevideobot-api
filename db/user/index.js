@@ -7,9 +7,9 @@ const cache = require('../cache')
 const Schema = db.Schema
 const schema = new Schema({
   email: String,
+  email_confirmed: Boolean,
   telegram_id: String,
   name: String,
-  username: String,
   password: String,
   access_token: String,
   localization: String,
@@ -61,6 +61,7 @@ module.exports = {
       access_token: user.access_token,
       username: user.username,
       email: user.email,
+      email_confirmed: user.email_confirmed || false,
       telegram_bot: user.telegram_bot,
       telegram_id: user.telegram_id,
       localization: user.localization
@@ -120,6 +121,7 @@ module.exports = {
     const max = 999999
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
+
   createResetPasswordPin: function(user, resetCode) {
     const resetObject = {
       id: user._id,
@@ -133,5 +135,20 @@ module.exports = {
   },
   removeResetPasswordPin: async function(user) {
     return await cache.remove(`reset-password-${user._id}`)
+  },
+
+  createEmailVerificationPin: function(user, code) {
+    const resetObject = {
+      id: user._id,
+      code: code,
+      time: moment().format('X')
+    }
+    cache.save(`verify-email-${user._id}`, resetObject, 7200)
+  },
+  getEmailVerificationPin: async function(user) {
+    return await cache.find(`verify-email-${user._id}`)
+  },
+  removeEmailVerificationPin: async function(user) {
+    return await cache.remove(`verify-email-${user._id}`)
   }
 }
