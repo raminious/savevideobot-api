@@ -10,7 +10,7 @@ router.post('/telegram/add-bot', bodyParser(), async function (ctx, next) {
   ctx.assert(ctx.is('json'), 415, 'content type should be json')
   const { token, botInfo } = ctx.request.body
 
-  await User.update(ctx.identity._id, {
+  await User.update(ctx.identity.user_id, {
     telegram_bot: {
       token,
       name: botInfo.first_name,

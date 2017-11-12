@@ -18,7 +18,7 @@ router.post('/user/profile', bodyParser(), async function (ctx, next) {
     ctx.assert(localization.indexOf(attributes.localization) > -1, 400, 'Invalid language')
   }
 
-  await User.update(ctx.identity._id, attributes)
+  await User.update(ctx.identity.user_id, attributes)
 
   ctx.body = {}
 })

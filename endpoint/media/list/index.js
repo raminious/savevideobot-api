@@ -13,7 +13,7 @@ router.get('/media/list', async function (ctx) {
   }
 
   const criteria = {
-    user_id: ctx.identity._id
+    user_id: ctx.identity.user_id
   }
 
   ctx.body = {

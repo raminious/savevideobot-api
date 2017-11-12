@@ -16,22 +16,23 @@ router.post('/telegram/integrate', bodyParser(), async function (ctx, next) {
   ctx.assert(user.telegram_id == null, 403, 'Your account has been integrated before.')
 
   // merge two accounts
+  const telegramUser = await User.findById(ctx.identity.user_id)
   const mergedUser = Object.assign(
     user,
-    _.omit(ctx.identity, '_id', 'access_token')
+    _.omit(telegramUser, '_id', 'access_token')
   )
 
   // update user object
   await User.update(user._id, mergedUser)
 
   // remove merged account
-  await User.remove(ctx.identity._id)
+  await User.remove(ctx.identity.user_id)
 
   // update user's media
-  await Media.update({ user_id: ctx.identity._id }, { user_id: user._id })
+  await Media.update({ user_id: ctx.identity.user_id }, { user_id: user._id })
 
   // update user's log
-  Log.update({ user_id: ctx.identity._id }, { user_id: user._id })
+  Log.update({ user_id: ctx.identity.user_id }, { user_id: user._id })
 
   ctx.body = {}
 })

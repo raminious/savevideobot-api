@@ -1,6 +1,7 @@
 const db = require('../../adapters/mongo');
 const _ = require('underscore')
 const moment = require('moment')
+const persianize = require('persianize')
 
 const Schema = db.Schema
 
@@ -29,7 +30,7 @@ const schema = new Schema({
   timestamps: { created_at: 'created_at' }
 });
 
-const Media = db.model('Media', schema);
+const Media = db.model('Media', schema)
 
 module.exports = {
 
@@ -48,7 +49,7 @@ module.exports = {
     }
 
     // check media is expired
-    // queued media are expired after 10minutes
+    // queued media are expired after 7 minutes
     const expired = moment().isAfter(moment(media.expire_at)) ||
       (media.status == 'queued' && moment().isAfter(moment(media.createdAt).add('7', 'minutes')))
 
@@ -114,7 +115,9 @@ module.exports = {
       .limit(limit)
       .sort({ _id: -1 })
 
-    return list.map(media => this.response(media))
+    return list
+      .filter(media => this.filterForbiddenWords(media.title))
+      .map(media => this.response(media))
   },
   total: async function(criteria) {
     return await Media.count(criteria)
@@ -161,5 +164,15 @@ module.exports = {
 
     const media = await record.save()
     return this.response(media)
+  },
+  filterForbiddenWords: function(title) {
+    const words = ['سپاه', 'آخوند', 'خیمین', 'خامنه ای', 'پاسدار', 'کیر', 'کوص',
+      'کون', 'خایه', 'جنده', 'جنتی', 'مکارم', 'مجاهدین', 'جنایت', 'دجال', 'نظام',
+      'ولایت', 'ولایی', 'رفسنجانی']
+
+    return !_.some(words, word => {
+      const normalizedTitle = persianize.convert().removeArabicChar(title).get()
+      return normalizedTitle.match(word) != null
+    })
   }
 }

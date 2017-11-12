@@ -4,6 +4,8 @@ const bcrypt = Promise.promisifyAll(require('bcrypt'))
 const crypto = Promise.promisifyAll(require('crypto'))
 const db = require('../../adapters/mongo')
 const cache = require('../cache')
+const Email = require('../../util/email')
+
 const Schema = db.Schema
 const schema = new Schema({
   email: String,
@@ -11,7 +13,6 @@ const schema = new Schema({
   telegram_id: String,
   name: String,
   password: String,
-  access_token: String,
   localization: String,
   role: String,
   telegram_bot: {
@@ -25,46 +26,28 @@ const schema = new Schema({
 
 const User = db.model('User', schema)
 
-const cacheTokenPrefix = 'user_tkn_'
-
 module.exports = {
   findById: async function(userId){
     return await User
       .findOne({ _id: userId.toString() })
       .lean()
   },
-  findByToken: async function(token) {
-    // get user from cache
-    let user = await cache.find(`${cacheTokenPrefix}${token}`)
-
-    if (user == null) {
-      user = await User
-        .findOne({ access_token: token })
-        .lean()
-
-      if (user) {
-        cache.save(`${cacheTokenPrefix}${user.access_token}`, user, 3600)
-      }
-    }
-
-    return user
-  },
   find: async function(criteria) {
     return await User
       .findOne(criteria)
       .lean()
   },
-  getObject: function(user) {
+  getObject: function(user, tokenParams = {}) {
     return {
       id: user._id,
       name: user.name,
-      access_token: user.access_token,
       username: user.username,
       email: user.email,
       email_confirmed: user.email_confirmed || false,
       telegram_bot: user.telegram_bot,
       telegram_id: user.telegram_id,
-      localization: user.localization
+      localization: user.localization,
+      ...tokenParams
     }
   },
   create: async function(identity) {
@@ -74,33 +57,25 @@ module.exports = {
       email: identity.email,
       username: identity.username,
       password: identity.password ? await this.hashPassword(identity.password) : undefined,
-      access_token: await this.createAuthKey(),
       role: identity.role,
-      createdAt: identity.time || moment().format()
+      createdAt: moment().format()
     })
 
     return await user.save()
   },
   update: async function(userId, attrs){
-    const user = await User.findOneAndUpdate({_id: userId}, attrs)
-
-    // remove cache
-    cache.remove(`${cacheTokenPrefix}${user.access_token}`)
-
-    return user
+    return await User.findOneAndUpdate({_id: userId}, attrs)
   },
   remove: async function(_id) {
     return await User.remove({ _id })
   },
   login: async function(email, password) {
+    const normalizedEmail = Email.normalize(email)
+    const user = await User
+      .findOne({ email: normalizedEmail })
+      .lean()
 
-    const user = await User.findOne({email: email.trim().toLowerCase()})
-
-    if (user == null) {
-      return null
-    }
-
-    return (await this.passwordValidation(password, user.password)) ? user : null
+    return await this.passwordValidation(password, user.password) ? user : null
   },
   hashPassword: async function(password) {
     const salt = await bcrypt.genSaltAsync(10)
@@ -108,10 +83,6 @@ module.exports = {
   },
   passwordValidation: async function(password, hash) {
    return await bcrypt.compareAsync(password, hash)
-  },
-  createAuthKey: async function() {
-    const accessTokenBytes = await crypto.randomBytesAsync(24)
-    return accessTokenBytes.toString('base64')
   },
   isAdmin: function (user) {
     return ['admin', 'superadmin'].indexOf(user.role) != -1
@@ -121,7 +92,6 @@ module.exports = {
     const max = 999999
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
-
   createResetPasswordPin: function(user, resetCode) {
     const resetObject = {
       id: user._id,
@@ -136,7 +106,6 @@ module.exports = {
   removeResetPasswordPin: async function(user) {
     return await cache.remove(`reset-password-${user._id}`)
   },
-
   createEmailVerificationPin: function(user, code) {
     const resetObject = {
       id: user._id,

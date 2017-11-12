@@ -32,6 +32,7 @@
     "moment": "^2.19.1",
     "mongoose": "^4.12.6",
     "normalize-email": "^1.1.0",
+    "persianize": "^1.0.2",
     "pmx": "^1.5.4",
     "redis": "^2.8.0",
     "request": "^2.83.0",

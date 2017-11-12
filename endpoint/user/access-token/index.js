@@ -21,7 +21,7 @@ router.post('/user/access-token', bodyParser(), async function (ctx, next) {
   // get user access-token based on authentication method
   const user = await authentications[method].apply(ctx)
 
-  ctx.body = User.getObject(user)
+  ctx.body = user
 })
 
 module.exports = app.use(router.routes())

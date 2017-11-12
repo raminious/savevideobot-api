@@ -43,7 +43,7 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
   }
 
   // log user request in database
-  dbLog.create(ctx.identity._id, 'explore', url)
+  dbLog.create(ctx.identity.user_id, 'explore', url)
 
   // get a server from balancer
   const server = await balancer.pop()
@@ -57,7 +57,7 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
   }
 
   // create new media
-  media = await Media.create(url, ctx.identity._id, server.id, { status: 'queued'})
+  media = await Media.create(url, ctx.identity.user_id, server.id, { status: 'queued'})
 
   // request for process and dump url
   try {

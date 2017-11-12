@@ -1,14 +1,35 @@
 const User = require('../../../../db/user')
+const AccessToken = require('../../../../db/access-token')
 
 module.exports = async function() {
   const email = this.request.body.email
   const password = this.request.body.password
+  const platform = this.headers['app-platform']
 
-  this.assert(email != null, 400, 'email is required')
-  this.assert(password != null, 400, 'password is required')
+  const tokenLimits = {
+    web: 1,
+    mobile: 2
+  }
+
+  this.assert(['web', 'mobile'].indexOf(platform) > -1,
+    400, 'Invalid device type')
+
+  this.assert(email != null, 400, 'Email is required')
+  this.assert(password != null, 400, 'Password is required')
 
   const user = await User.login(email, password)
-  this.assert(user != null, 404, 'invalid username or password')
+  this.assert(user != null, 404, 'Invalid email or password')
 
-  return user
+  const countsOfAccessTokens = await AccessToken.getCounts(user._id, platform)
+  this.assert(countsOfAccessTokens < tokenLimits[platform], 403,
+    'You have logged in with another devices.')
+
+  // create new access token
+  const newAccess = await AccessToken.create(user._id, platform)
+
+  return User.getObject(user, {
+    access_token: newAccess.token,
+    access_token_expire: newAccess.expire_at,
+    access_token_platform: newAccess.platform
+  })
 }

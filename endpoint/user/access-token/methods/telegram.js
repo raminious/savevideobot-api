@@ -1,4 +1,9 @@
 const User = require('../../../../db/user')
+const AccessToken = require('../../../../db/access-token')
+
+async function createTelegramAccessToken(user_id) {
+  return await AccessToken.create(user_id, 'telegram', 200 * 12 * 30)
+}
 
 module.exports = async function () {
   const id = this.request.body.id
@@ -12,17 +17,26 @@ module.exports = async function () {
   this.assert(username != null, 400, 'username is required')
 
   // check user is registered before
-  const user = await User.find({ telegram_id: id })
+  let user = await User.find({ telegram_id: id })
 
-  if (user != null) {
-    return user
+  if (user) {
+    let access = await AccessToken.getTokenById(user._id, 'telegram')
+
+    if (!access) {
+      access = await createTelegramAccessToken(user._id)
+    }
+
+    return User.getObject(user, { access_token: access.token })
   }
 
   //signup user if not registered
-  return await User.create({
+  user = await User.create({
     telegram_id: id,
-    name: name,
-    username: username,
-    time: this.request.body.time
+    name: name
   })
+
+  // create new access token
+  const newAccess = await createTelegramAccessToken(user._id)
+
+  return User.getObject(user, { access_token: newAccess.token })
 }
