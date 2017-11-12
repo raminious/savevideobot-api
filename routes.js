@@ -5,6 +5,7 @@ const routes = {
   user: [
     { path: 'signup', auth: false },
     { path: 'access-token', auth: false },
+    { path: 'remove-token' },
     { path: 'profile' },
     { path: 'info' },
   ],

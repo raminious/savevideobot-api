@@ -5,6 +5,7 @@ const crypto = Promise.promisifyAll(require('crypto'))
 const db = require('../../adapters/mongo')
 const cache = require('../cache')
 const Email = require('../../util/email')
+const AccessToken = require('../access-token')
 
 const Schema = db.Schema
 const schema = new Schema({
@@ -26,18 +27,33 @@ const schema = new Schema({
 
 const User = db.model('User', schema)
 
+// user cache token
+const cacheTokenPrefix = 'user-object-'
+
 module.exports = {
-  findById: async function(userId){
-    return await User
-      .findOne({ _id: userId.toString() })
-      .lean()
+  findById: async function(userId) {
+
+    // get user from cache
+    let user = await cache.find(`${cacheTokenPrefix}${userId}`)
+
+    if (!user) {
+      // get user from db
+      user = await this.find({ _id: userId })
+
+      if (user) {
+        // save token in cache
+        cache.save(`${cacheTokenPrefix}${userId}`, user, 8 * 60 * 60)
+      }
+    }
+
+    return user
   },
   find: async function(criteria) {
     return await User
       .findOne(criteria)
       .lean()
   },
-  getObject: function(user, tokenParams = {}) {
+  getObject: function(user, extraAttributes = {}) {
     return {
       id: user._id,
       name: user.name,
@@ -47,7 +63,7 @@ module.exports = {
       telegram_bot: user.telegram_bot,
       telegram_id: user.telegram_id,
       localization: user.localization,
-      ...tokenParams
+      ...extraAttributes
     }
   },
   create: async function(identity) {
@@ -64,9 +80,16 @@ module.exports = {
     return await user.save()
   },
   update: async function(userId, attrs){
+    cache.remove(`${cacheTokenPrefix}${userId}`)
     return await User.findOneAndUpdate({_id: userId}, attrs)
   },
   remove: async function(_id) {
+    // remove cache
+    cache.remove(`${cacheTokenPrefix}${_id}`)
+
+    // remove tokens
+    AccessToken.terminateSessions({ user_id: _id })
+
     return await User.remove({ _id })
   },
   login: async function(email, password) {

@@ -27,7 +27,7 @@ const schema = new Schema({
 const AccessToken = db.model('AccessToken', schema)
 
 // cache prefix name for user token
-const cacheTokenPrefix = 'user-object-'
+const cacheTokenPrefix = 'user-token-'
 
 module.exports = {
   createAuthKey: async function() {
@@ -57,15 +57,15 @@ module.exports = {
 
       if (access) {
         // save token in cache
-        cache.save(`${cacheTokenPrefix}${access.token}`, access, 3600)
+        cache.save(`${cacheTokenPrefix}${access.token}`, access, 8 * 60 * 60)
       }
     }
 
     return access
   },
-  getCounts: async function(user_id, platform) {
+  getSessions: async function(criteria) {
     return await AccessToken
-      .count({ user_id, platform })
+      .find(criteria)
       .lean()
   },
   create: async function(user_id, platform, expireDays = 30) {
@@ -78,7 +78,19 @@ module.exports = {
 
     return await accessToken.save()
   },
+  terminateSessions: async function(criteria) {
+    const sessions = await this.getSessions(criteria)
+
+    sessions.forEach(session => {
+      cache.remove(`${cacheTokenPrefix}${session.token}`)
+      this.remove(session.token).then(() => null, () => null)
+    })
+  },
   remove: async function(token) {
+    // remove cache
+    cache.remove(`${cacheTokenPrefix}${token}`)
+
+    // remove from db
     return await AccessToken.remove({ token })
   }
 }
