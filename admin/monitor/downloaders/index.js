@@ -23,8 +23,7 @@ const monitor = async function() {
 
 		try {
 			const response = await agent.get(url)
-				.retry(2)
-				.auth(config.auth.username, config.auth.password, { auto: true })
+				.auth(config.auth.username, config.auth.password)
 
 			const result = response.body
 			const stats = result.stats
@@ -40,7 +39,7 @@ const monitor = async function() {
 			}
 		}
 		catch (e) {
-			message.push('*[ x ] Job server ' + server.id + ' not responsed.*\n' + e.message + '\n\n')
+			message.push('*[ x ] Job server ' + server.id + ' did not response.*\n' + e.message + '\n\n')
 		}
 	}
 
