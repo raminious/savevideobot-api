@@ -3,7 +3,7 @@ const config = require('../../config.json')
 const { dbName, username, password } = config.database.mongo
 
 const connectionString = username.length > 0 ?
-  `mongodb://${username}:${password}@localhost/${dbName}` :
+  `mongodb://${username}:${encodeURI(password)}@localhost/${dbName}` :
   `mongodb://localhost/${dbName}`
 
 mongoose.Promise = global.Promise
