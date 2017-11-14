@@ -13,7 +13,7 @@ router.post('/user/email/verify', bodyParser(), async function (ctx, next) {
   ctx.assert(user != null, 404, 'Sorry, this user is not registered.')
 
   const pin = await User.getEmailVerificationPin(user)
-  ctx.assert(pin && pin.code === ~~pinCode, 400, 'Invalid verification code')
+  ctx.assert(pin && pin.code === ~~code, 400, 'Entered verification code is wrong')
 
   await User.update(userId, {
     email_confirmed: true

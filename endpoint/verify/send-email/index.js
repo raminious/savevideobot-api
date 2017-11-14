@@ -20,23 +20,27 @@ router.post('/user/email/send-verification', bodyParser(), async function (ctx, 
   // resend reset password every 180s to avoid trolling
   if (lastToken && lastToken.id === user._id) {
     const lastSent = moment().format('X') -  lastToken.time
-    ctx.assert(lastSent > 180, 400, 'We recently sent you an email. check your inbox.')
+
+    if (lastSent <= 300) {
+      ctx.body = {}
+      return true
+    }
   }
 
   // create reset code
   const verificationCode = User.getRandomNumber()
 
-  const isComposed = await sendMail(email, {
+  const isComposed = await sendMail(user.email, {
     subject: 'SaveVideoBot - Verify email',
-    layout: 'verify-email',
+    layout: 'email-verify',
     code: verificationCode,
-    link: `${config.domain}/user/${user._id}/email/confirm/${resetCode}`,
+    link: `${config.domain}/user/${user._id}/email/confirm/${verificationCode}`,
   })
 
   ctx.assert(isComposed != null, 400, 'We could not send verification code. try again.')
 
   // save the verify code
-  User.createEmailVerificationPin(user, resetCode)
+  User.createEmailVerificationPin(user, verificationCode)
 
   ctx.body = {}
 })
