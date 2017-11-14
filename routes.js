@@ -15,7 +15,8 @@ const routes = {
   ],
   password: [
     { path: 'forget', auth: false },
-    { path: 'reset', auth: false }
+    { path: 'reset', auth: false },
+    { path: 'change' }
   ],
   media: [
     { path: 'update' },
