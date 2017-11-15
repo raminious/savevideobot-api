@@ -6,6 +6,7 @@ const db = require('../../adapters/mongo')
 const cache = require('../cache')
 const Email = require('../../util/email')
 const AccessToken = require('../access-token')
+const Media = require('../media')
 
 const Schema = db.Schema
 const schema = new Schema({
@@ -33,7 +34,6 @@ const cacheTokenPrefix = 'user-object-'
 
 module.exports = {
   findById: async function(userId) {
-
     // get user from cache
     let user = await cache.find(`${cacheTokenPrefix}${userId}`)
 
@@ -117,6 +117,30 @@ module.exports = {
     } else {
       return moment(user.subscription).add(days, 'days').format()
     }
+  },
+  verifySubscription: async function(user_id) {
+    const user = await this.findById(user_id)
+
+    // check user has subscription or not
+    if (moment(user.subscription).isAfter(moment())) {
+      return true
+    }
+
+    // get last video downloaded
+    const lastVideos = await Media.find({ user_id }, 0, 1)
+
+    if (lastVideos.length === 0) {
+      return true
+    }
+
+    // get time of last video
+    const newDate = moment(lastVideos[0].createdAt).add(12, 'hours')
+
+    if (moment().isAfter(newDate)) {
+      return true
+    }
+
+    return newDate.fromNow(true)
   },
   getRandomNumber: function() {
     const min = 100000

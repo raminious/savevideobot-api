@@ -6,7 +6,10 @@ const persianize = require('persianize')
 const Schema = db.Schema
 
 const schema = new Schema({
-  user_id: Schema.Types.ObjectId,
+  user_id: {
+    type: Schema.Types.ObjectId,
+    index: true
+  },
   url: {
     type: String,
     index: true

@@ -4,6 +4,7 @@ const agent = require('superagent')
 const bodyParser = require('koa-bodyparser')
 const balancer = require('../../../util/balancer')
 const Media = require('../../../db/media')
+const User = require('../../../db/user')
 const dbLog = require('../../../db/log')
 const app = new Koa()
 
@@ -41,6 +42,10 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
       ctx.assert(urlPattern.test(callback.url), 400, 'callback url is not valid')
     }
   }
+
+  // const subscriptionStatus = await User.verifySubscription(ctx.identity.user_id)
+  // ctx.assert(subscriptionStatus === true, 402,
+  //   `Your subscription has been expired. buy subscription or wait for ${subscriptionStatus}`)
 
   // log user request in database
   dbLog.create(ctx.identity.user_id, 'explore', url)
