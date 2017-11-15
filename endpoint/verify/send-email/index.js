@@ -8,11 +8,7 @@ const sendMail = require('../../../services/email')
 const config = require('../../../config.json')
 
 router.post('/user/email/send-verification', bodyParser(), async function (ctx, next) {
-  const { userId } = ctx.request.body
-
-  ctx.assert(userId != null, 400, 'Invalid user id')
-
-  const user = await User.findById(userId)
+  const user = await User.findById(ctx.identity.user_id)
   ctx.assert(user != null, 404, 'Invalid user id')
 
   const lastToken = await User.getEmailVerificationPin(user)

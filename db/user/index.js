@@ -16,6 +16,7 @@ const schema = new Schema({
   password: String,
   localization: String,
   role: String,
+  subscription: Date,
   telegram_bot: {
     token: String,
     name: String,
@@ -57,12 +58,12 @@ module.exports = {
     return {
       id: user._id,
       name: user.name,
-      username: user.username,
       email: user.email,
       email_confirmed: user.email_confirmed || false,
       telegram_bot: user.telegram_bot,
       telegram_id: user.telegram_id,
       localization: user.localization,
+      subscription: user.subscription,
       ...extraAttributes
     }
   },
@@ -71,9 +72,9 @@ module.exports = {
       telegram_id: identity.telegram_id,
       name: identity.name.trim(),
       email: identity.email,
-      username: identity.username,
       password: identity.password ? await this.hashPassword(identity.password) : undefined,
       role: identity.role,
+      subscription: identity.subscription,
       createdAt: moment().format()
     })
 
@@ -109,6 +110,13 @@ module.exports = {
   },
   isAdmin: function (user) {
     return ['admin', 'superadmin'].indexOf(user.role) != -1
+  },
+  increaseSubscription(user, days) {
+    if (moment().isAfter(moment(user.subscription))) {
+      return moment().add(days, 'days').format()
+    } else {
+      return moment(user.subscription).add(days, 'days').format()
+    }
   },
   getRandomNumber: function() {
     const min = 100000

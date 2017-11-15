@@ -2,13 +2,17 @@ const Koa = require('koa')
 const router = require('koa-router')()
 const bodyParser = require('koa-bodyparser')
 const isemail = require('isemail')
+const moment = require('moment')
 const User = require('../../../db/user')
+const AccessToken = require('../../../db/access-token')
 const Email = require('../../../util/email')
 const app = new Koa()
 
 router.post('/user/signup', bodyParser(), async function (ctx, next) {
   const { name, email, password } = ctx.request.body
+  const platform = ctx.headers['app-platform']
 
+  ctx.assert(platform != null, 400, 'Invalid platform')
   ctx.assert(name != null && name.length >= 3, 400, 'Name is invalid')
 
   ctx.assert(password != null && password.length >= 6,
@@ -33,10 +37,16 @@ router.post('/user/signup', bodyParser(), async function (ctx, next) {
   user = await User.create({
     name: name,
     email: normalizedEmail,
-    password: password
+    password: password,
+    subscription: moment().add(5, 'days').format()
   })
 
-  ctx.body = User.getObject(user)
+  // create new access token
+  const access = await AccessToken.create(user._id, platform)
+
+  ctx.body = User.getObject(user, {
+    access_token: access.token
+  })
 })
 
 module.exports = app.use(router.routes())

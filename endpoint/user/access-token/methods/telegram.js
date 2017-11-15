@@ -1,3 +1,4 @@
+const moment = require('moment')
 const User = require('../../../../db/user')
 const AccessToken = require('../../../../db/access-token')
 
@@ -32,7 +33,8 @@ module.exports = async function () {
   //signup user if not registered
   user = await User.create({
     telegram_id: id,
-    name: name
+    name: name,
+    subscription: moment().add(12, 'days').format()
   })
 
   // create new access token

@@ -32,7 +32,7 @@ const routes = {
     { path: 'remove-bot' }
   ],
   client: [
-    { path: 'version' }
+    { path: 'version', auth: false }
   ]
 };
 
