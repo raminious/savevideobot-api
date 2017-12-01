@@ -12,7 +12,6 @@ const webhooks = ['telegram']
 const callbacks = ['url']
 
 router.post('/media/download/:id/:format', bodyParser(), async function (ctx) {
-
   ctx.assert(ctx.is('json'), 415, 'content type should be json')
 
   const { id, format } = ctx.params
@@ -21,9 +20,9 @@ router.post('/media/download/:id/:format', bodyParser(), async function (ctx) {
   ctx.assert(id != null, 400, 'Media id is required')
   ctx.assert(format != null, 400, 'Format is required')
 
-  ctx.assert(webhook != null, 400, 'webhook is not defined')
-  ctx.assert(webhook.hasOwnProperty('type'), 400, 'webhook type is not defined')
-  ctx.assert(webhooks.indexOf(webhook.type) != -1, 400, 'webhook type is invalid')
+  ctx.assert(webhook != null, 400, 'Webhook is not defined')
+  ctx.assert(webhook.hasOwnProperty('type'), 400, 'Webhook type is not defined')
+  ctx.assert(webhooks.indexOf(webhook.type) != -1, 400, 'Webhook type is invalid')
 
   if (webhook.type == 'telegram') {
     ctx.assert(webhook.bot_token != null && webhook.user_id != null, 400, 'Invalid Telegram webhook properties')
@@ -31,8 +30,8 @@ router.post('/media/download/:id/:format', bodyParser(), async function (ctx) {
 
   // if callback is defined, validate it
   if (callback != null) {
-    ctx.assert(callback.id != null && callback.type != null, 400, 'callback must have id and type attributes')
-    ctx.assert(callbacks.indexOf(callback.type) != -1, 400, 'callback type is invalid')
+    ctx.assert(callback.id != null && callback.type != null, 400, 'Callback must have id and type attributes')
+    ctx.assert(callbacks.indexOf(callback.type) != -1, 400, 'Callback type is invalid')
 
     if (callback.type == 'url') {
 
@@ -50,13 +49,13 @@ router.post('/media/download/:id/:format', bodyParser(), async function (ctx) {
     ctx.log('info', 'media_404', {
       target: 'api',
       task: 'media/download',
-      status: media == null? '404': 'expired'
+      status: media == null ? '404' : 'expired'
     })
   }
 
   // media not found or expired
   ctx.assert(media != null && !media.expired,
-    406, 'Requested media is not found or expired')
+    406, ctx.t('Requested media is not found or expired'))
 
   // get a server from balancer
   const server = await balancer.pop(media.server_id || null)
@@ -78,7 +77,6 @@ router.post('/media/download/:id/:format', bodyParser(), async function (ctx) {
     }
   }
   catch(e) {
-
     // if downloader is down
     if (e.response == null) {
       e.response = { statusCode: 403, text: e.message }

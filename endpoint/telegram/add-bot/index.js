@@ -7,7 +7,7 @@ const User = require('../../../db/user')
 const app = new Koa()
 
 router.post('/telegram/add-bot', bodyParser(), async function (ctx, next) {
-  ctx.assert(ctx.is('json'), 415, 'content type should be json')
+  ctx.assert(ctx.is('json'), 415, 'Content type should be json')
   const { token, botInfo } = ctx.request.body
 
   await User.update(ctx.identity.user_id, {

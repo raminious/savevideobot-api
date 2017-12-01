@@ -4,6 +4,7 @@ const AccessToken = require('../../../../db/access-token')
 module.exports = async function() {
   const { email, password, terminateOtherSessions } = this.request.body
   const platform = this.headers['app-platform']
+  const { t } = this
 
   const tokenLimits = {
     web: 1,
@@ -13,11 +14,11 @@ module.exports = async function() {
   this.assert(['web', 'mobile'].indexOf(platform) > -1,
     400, 'Invalid device type')
 
-  this.assert(email != null, 400, 'Email is required')
-  this.assert(password != null, 400, 'Password is required')
+  this.assert(email != null, 400, t('Email is required'))
+  this.assert(password != null, 400, t('Password is required'))
 
   const user = await User.login(email, password)
-  this.assert(user != null, 404, 'Invalid email or password')
+  this.assert(user != null, 404, t('Invalid email or password'))
 
   // get user id
   const user_id = user._id.toString()
@@ -27,7 +28,7 @@ module.exports = async function() {
   } else {
     const sessions = await AccessToken.getSessions({ user_id, platform })
     this.assert(sessions.length < tokenLimits[platform], 403,
-      'You have logged in with another devices.')
+      t('You have logged in with another devices'))
   }
 
   // create new access token

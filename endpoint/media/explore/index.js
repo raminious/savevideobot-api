@@ -18,13 +18,13 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
 
   // get and check input url
   let { url } = ctx.request.body
-  ctx.assert(url != null, 400, 'Url is required')
+  ctx.assert(url != null, 400, ctx.t('Url is required'))
 
   // fetch link from url
   url = url.match(urlPattern)
 
   //check url is valid or not
-  ctx.assert(url.length == 1, 406, 'Invalid Url Address')
+  ctx.assert(url && url.length == 1, 406, ctx.t('Invalid Url Address'))
 
   // get the url
   url = url[0].trim()
@@ -34,18 +34,17 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
 
   // check callback parameters
   if (callback != null) {
-    ctx.assert(callback.id != null && callback.type != null, 400, 'callback must have id and tp attributes')
-    ctx.assert(callbacks.indexOf(callback.type) != -1, 400, 'callback type is invalid')
+    ctx.assert(callback.id != null && callback.type != null, 400, 'Callback must have id and tp attributes')
+    ctx.assert(callbacks.indexOf(callback.type) != -1, 400, 'Callback type is invalid')
 
     if (callback.type == 'url') {
-      ctx.assert(callback.hasOwnProperty('url'), 400, 'callback url is not defined')
-      ctx.assert(urlPattern.test(callback.url), 400, 'callback url is not valid')
+      ctx.assert(callback.hasOwnProperty('url'), 400, 'Callback url is not defined')
+      ctx.assert(urlPattern.test(callback.url), 400, 'Callback url is not valid')
     }
   }
 
-  // const subscriptionStatus = await User.verifySubscription(ctx.identity.user_id)
-  // ctx.assert(subscriptionStatus === true, 402,
-  //   `Your subscription has been expired. buy subscription or wait for ${subscriptionStatus}`)
+  const waitTime = await User.verifySubscription(ctx.identity.user_id, ctx.locale)
+  ctx.assert(waitTime === 0, 402, ctx.t('Subscription Expired', { waitTime }))
 
   // log user request in database
   dbLog.create(ctx.identity.user_id, 'explore', url)
@@ -68,7 +67,8 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
   try {
     await agent
       .post(server.url + '/explore')
-      .retry(3)
+      .set({ 'app-language': ctx.locale })
+      .retry(2)
       .send({
         id: media.id,
         url,
@@ -80,14 +80,17 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
   }
   catch(e) {
 
-    // if download is down
-    if (e.response == null) {
+    // if downloader is down
+    if (!e.response) {
 
       // inform balancer this server is down
       await balancer.down(server.id)
 
       // set manual response
-      e.response = { statusCode: 403, text: e.message}
+      e.response = {
+        statusCode: 403,
+        text: e.message
+      }
 
       ctx.log('fatal', 'downloader_down', {
         target: 'downloader',

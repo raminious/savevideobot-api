@@ -8,8 +8,11 @@ const sendMail = require('../../../services/email')
 const config = require('../../../config.json')
 
 router.post('/user/email/send-verification', bodyParser(), async function (ctx, next) {
+  const { t } = ctx
+
   const user = await User.findById(ctx.identity.user_id)
-  ctx.assert(user != null, 404, 'Invalid user id')
+  ctx.assert(user != null, 404, t('Invalid user id'))
+  ctx.assert(user.email_confirmed !== true, 400, t('This email is already confirmed'))
 
   const lastToken = await User.getEmailVerificationPin(user)
 
@@ -30,10 +33,10 @@ router.post('/user/email/send-verification', bodyParser(), async function (ctx, 
     subject: 'SaveVideoBot - Verify email',
     layout: 'email-verify',
     code: verificationCode,
-    link: `${config.domain}/user/${user._id}/email/confirm/${verificationCode}`,
+    link: `${config.domain}/dashboard/settings/confirm/email/${verificationCode}`,
   })
 
-  ctx.assert(isComposed != null, 400, 'We could not send verification code. try again.')
+  ctx.assert(isComposed != null, 400, t('We could not send verification code, try again'))
 
   // save the verify code
   User.createEmailVerificationPin(user, verificationCode)

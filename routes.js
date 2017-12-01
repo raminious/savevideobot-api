@@ -33,6 +33,9 @@ const routes = {
   ],
   client: [
     { path: 'version', auth: false }
+  ],
+  statistic: [
+    { path: 'downloads', auth: false }
   ]
 };
 

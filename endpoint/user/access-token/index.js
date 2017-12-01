@@ -12,7 +12,7 @@ const authentications = {
 
 router.post('/user/access-token', bodyParser(), async function (ctx, next) {
 
-  ctx.assert(ctx.is('json'), 415, 'content type should be json')
+  ctx.assert(ctx.is('json'), 415, 'Content type should be json')
 
   const method = ctx.request.headers['authentication-method'] || 'basic'
   ctx.assert(Object.keys(authentications).indexOf(method) != -1,

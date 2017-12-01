@@ -1,7 +1,7 @@
 const Koa = require('koa')
 const router = require('koa-router')()
-const app = new Koa()
 const User = require('../../../db/user')
+const app = new Koa()
 
 router.get('/user/info', async function (ctx, next) {
   const user = await User.findById(ctx.identity.user_id)

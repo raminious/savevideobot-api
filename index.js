@@ -1,9 +1,10 @@
 const Koa = require('koa')
 const responseTime = require('koa-response-time')
-const ratelimit = require('koa-ratelimit')
 const mount = require('koa-mount')
-const auth = require('koa-basic-auth')
-const health = require('koa-ping')
+const i18next = require('i18next')
+const i18nextBackend = require('i18next-sync-fs-backend')
+const cors = require('koa2-cors')
+const path = require('path')
 const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
@@ -15,19 +16,49 @@ require('./admin/monitor')
 // enable media garbage collector
 const gc = require('./util/gc/media')
 
-module.exports = function api(opt) {
+i18next
+.use(i18nextBackend)
+.init({
+  backend: {
+    loadPath: path.resolve('./locales/{{lng}}/list.json')
+  },
+  debug: false,
+  initImmediate: false,
+  joinArrays: true,
+  lng: 'en',
+  preload: ['en', 'fa'],
+  fallbackLng: 'en',
+})
 
+module.exports = function api() {
   const app = new Koa()
 
   // trust proxy
   app.proxy = true
 
-  // x-response-time
-  app.use(responseTime())
+  app.use(cors({
+    origin: () => (process.env.NODE_ENV) !== 'production' ? '*' : false,
+    maxAge: 5,
+    credentials: true,
+    allowMethods: ['GET', 'POST']
+  }))
 
   // logger
   app.use(async function (ctx, next){
     ctx.log = log
+    return await next()
+  })
+
+  app.use(async function(ctx, next) {
+    ctx.locale = ctx.headers['app-language'] || 'en'
+
+    ctx.t = function(key, args) {
+      return i18next.t(key, {
+        ...args,
+        lng: ctx.locale
+      })
+    }
+
     return await next()
   })
 
@@ -41,7 +72,7 @@ module.exports = function api(opt) {
       if (e.status == 401) {
         ctx.status = 401
         ctx.set('WWW-Authenticate', 'Basic');
-        ctx.body = 'authentication required';
+        ctx.body = ctx.t('authentication required');
         return false
       }
 
@@ -64,7 +95,7 @@ module.exports = function api(opt) {
     mount(require(r.path)))
   )
 
-  app.use(async function(ctx){
+  app.use(async function(ctx) {
     ctx.status = 404
     ctx.body = 'savevideobot.com - api not found'
   })

@@ -1,0 +1,6 @@
+{
+  "authentication required": "Authentication Required",
+  "Subscription Expired": "Your subscription has been expired. buy subscription or wait for {{waitTime}}",
+  "Reset Password For Telegram":
+    "You have been requested to reset your password.\n\nThe reset pin code is <b>{{resetCode}}</b>"
+}

@@ -49,6 +49,13 @@ module.exports = {
 
     return user
   },
+  findByEmail: async function(email) {
+    const normalizedEmail = Email.normalize(email)
+
+    return await User
+      .findOne({ email: normalizedEmail})
+      .lean()
+  },
   find: async function(criteria) {
     return await User
       .findOne(criteria)
@@ -118,29 +125,31 @@ module.exports = {
       return moment(user.subscription).add(days, 'days').format()
     }
   },
-  verifySubscription: async function(user_id) {
+  verifySubscription: async function(user_id, language = 'en') {
     const user = await this.findById(user_id)
 
     // check user has subscription or not
     if (moment(user.subscription).isAfter(moment())) {
-      return true
+      return 0
     }
 
     // get last video downloaded
     const lastVideos = await Media.find({ user_id }, 0, 1)
 
     if (lastVideos.length === 0) {
-      return true
+      return 0
     }
 
     // get time of last video
-    const newDate = moment(lastVideos[0].createdAt).add(12, 'hours')
+    const newDate = moment(lastVideos[0].createdAt).add(4, 'hours')
 
     if (moment().isAfter(newDate)) {
-      return true
+      return 0
     }
 
-    return newDate.fromNow(true)
+    return newDate
+      .locale(language)
+      .fromNow(true)
   },
   getRandomNumber: function() {
     const min = 100000

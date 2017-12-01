@@ -74,7 +74,7 @@ module.exports = {
       expired: expired || media.status == 'failed',
       worker: media.worker,
       note: media.note,
-      status: expired? 'expired': media.status
+      status: expired ? 'expired' : media.status
     }
 
     if (media.formats.length == 0) {
@@ -135,7 +135,7 @@ module.exports = {
   findByUrl: async function(url) {
     const media = await Media
       .findOne({ url: url.trim() })
-      .sort({ _id: -1})
+      .sort({ _id: -1 })
       .lean()
 
     return this.response(media)
@@ -171,7 +171,8 @@ module.exports = {
   filterForbiddenWords: function(title) {
     const words = ['سپاه', 'آخوند', 'خیمین', 'خامنه ای', 'پاسدار', 'کیر', 'کوص',
       'کون', 'خایه', 'جنده', 'جنتی', 'مکارم', 'مجاهدین', 'جنایت', 'دجال', 'نظام',
-      'ولایت', 'ولایی', 'رفسنجانی']
+      'ولایت', 'ولایی', 'رفسنجانی', 'سکس', 'sex', 'کروبی', 'جنبش سبز', 'احمدی نژاد',
+      'لاریجانی' ]
 
     return !_.some(words, word => {
       const normalizedTitle = persianize.convert().removeArabicChar(title).get()

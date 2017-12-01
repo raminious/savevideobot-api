@@ -7,13 +7,14 @@ const User = require('../../../db/user')
 
 router.post('/user/email/verify', bodyParser(), async function (ctx, next) {
   const { code } = ctx.request.body
+  const { t } = ctx
 
   const user = await User.findById(ctx.identity.user_id)
-  ctx.assert(user != null, 404, 'Sorry, this user is not registered.')
+  ctx.assert(user != null, 404, t('Sorry, this user is not registered'))
   ctx.assert(user.email_confirmed !== true, 400, 'This email is already confirmed')
 
   const pin = await User.getEmailVerificationPin(user)
-  ctx.assert(pin && pin.code === ~~code, 400, 'Entered verification code is wrong')
+  ctx.assert(pin && pin.code === ~~code, 400, t('Entered verification code is wrong'))
 
   // calculate new subscription
   const increaseDays = 7

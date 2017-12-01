@@ -10,7 +10,9 @@ const schema = new Schema({
 const Statistics = db.model('statistic', schema)
 
 module.exports = {
-
+  report: async function() {
+    return await Statistics.findOne({})
+  },
   updateCounter: function (metric) {
     return new Promise((resolve, reject) => {
       return Statistics.findOneAndUpdate({}, { $inc: { [metric]: 1 } }, { upsert: true })

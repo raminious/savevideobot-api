@@ -21,8 +21,14 @@ module.exports = function(recipient, data) {
   }
 
   return new Promise((resolve, reject) => {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[ Send Mail Fake ] ', data)
+      return resolve(true)
+    }
+
     mailgun.messages().send(mailData, (err, body) => {
       if (err) {
+        console.log('[ Send Mail Error ] ', err)
         return resolve(null)
       }
       return resolve(true)

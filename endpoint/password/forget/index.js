@@ -10,22 +10,23 @@ const config = require('../../../config.json')
 
 router.post('/user/password/forget', bodyParser(), async function (ctx, next) {
   const { email, sendTo } = ctx.request.body
+  const { t } = ctx
 
-  ctx.assert(email != null, 400, 'Invalid email')
+  ctx.assert(email != null, 400, t('Invalid email'))
 
-  const user = await User.find({ email })
-  ctx.assert(user != null, 404, 'Sorry, that email address is not registered with us.')
+  const user = await User.findByEmail(email)
+  ctx.assert(user != null, 404, t('Sorry, that email address is not registered with us'))
 
   if (sendTo === 'telegram') {
-    ctx.assert(user.telegram_id != null, 400, 'There isn\'t any connected Telegram account.')
+    ctx.assert(user.telegram_id != null, 400, t('There isn\'t any connected Telegram account'))
   }
 
   const lastToken = await User.getResetPasswordPin(user)
 
   // resend reset password every 180s to avoid trolling
-  if (lastToken && lastToken.id === user._id && sendTo === 'email') {
+  if (lastToken && lastToken.id === user._id.toString() && sendTo === 'email') {
     const lastSent = moment().format('X') -  lastToken.time
-    ctx.assert(lastSent > 180, 400, 'We recently sent you an email. check your inbox.')
+    ctx.assert(lastSent > 180, 400, t('We recently sent you an email, check your inbox'))
   }
 
   // create reset code
@@ -34,20 +35,17 @@ router.post('/user/password/forget', bodyParser(), async function (ctx, next) {
   let isComposed
 
   if (sendTo === 'telegram') {
-    isComposed = await Telegram.sendMessage(user.telegram_id,
-      'You have been requested to reset your password.\n\n' +
-      `The reset pin code is <b>${resetCode}</b>`
-    )
+    isComposed = await Telegram.sendMessage(user.telegram_id, t('Reset Password For Telegram', { resetCode }))
   } else {
     isComposed = await sendMail(email, {
-      subject: 'SaveVideoBot - Reset Password',
+      subject: t('SaveVideoBot - Reset Password'),
       layout: 'password-reset',
       code: resetCode,
       link: `${config.domain}/reset-password/${user._id}/${resetCode}`,
     })
   }
 
-  ctx.assert(isComposed != null, 400, 'We could not send reset pin code. try again.')
+  ctx.assert(isComposed, 400, t('We could not send reset pin code, try again'))
 
   // save the reset password pin
   User.createResetPasswordPin(user, resetCode)

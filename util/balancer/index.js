@@ -42,8 +42,9 @@ balancer.pop = async function (serverId) {
       return server
   }
 
-  if (process.env.NODE_ENV != 'production')
+  if (process.env.NODE_ENV != 'production') {
     return { id: 's1', url: 'http://127.0.0.1:19001' }
+  }
 
   current = (current + 1) % list.length
   return list[current]

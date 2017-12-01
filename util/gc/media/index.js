@@ -25,5 +25,5 @@ new CronJob({
   onTick: co.wrap(async function () {
     await (new GC).run()
   }),
-  start: process.env.pm_id? (process.env.pm_id == 0? true: false): true
+  start: process.env.pm_id ? (process.env.pm_id == 0? true: false) : true
 })

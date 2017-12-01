@@ -7,15 +7,13 @@ async function createTelegramAccessToken(user_id) {
 }
 
 module.exports = async function () {
-  const id = this.request.body.id
-  const username = this.request.body.username
-  const name = this.request.body.name
+  const { t } = this
+  const { id, name } = this.request.body
 
-  this.assert(id != null, 400, 'telegram id is required')
-  this.assert(/^[0-9]+$/.test(id), 400, 'invalid telegram id')
+  this.assert(id != null, 400, t('Telegram id is required'))
+  this.assert(/^[0-9]+$/.test(id), 400, t('Invalid telegram id'))
 
-  this.assert(name != null, 400, 'name is required')
-  this.assert(username != null, 400, 'username is required')
+  this.assert(name != null, 400, t('Name is required'))
 
   // check user is registered before
   let user = await User.find({ telegram_id: id })
@@ -27,7 +25,9 @@ module.exports = async function () {
       access = await createTelegramAccessToken(user._id)
     }
 
-    return User.getObject(user, { access_token: access.token })
+    return User.getObject(user, {
+      access_token: access.token
+    })
   }
 
   //signup user if not registered
@@ -40,5 +40,7 @@ module.exports = async function () {
   // create new access token
   const newAccess = await createTelegramAccessToken(user._id)
 
-  return User.getObject(user, { access_token: newAccess.token })
+  return User.getObject(user, {
+    access_token: newAccess.token
+  })
 }

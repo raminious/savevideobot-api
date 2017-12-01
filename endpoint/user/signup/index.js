@@ -10,19 +10,22 @@ const app = new Koa()
 
 router.post('/user/signup', bodyParser(), async function (ctx, next) {
   const { name, email, password } = ctx.request.body
+  const { t } = ctx
+
   const platform = ctx.headers['app-platform']
+  ctx.assert(platform != null, 400, t('Invalid platform'))
 
-  ctx.assert(platform != null, 400, 'Invalid platform')
-  ctx.assert(name != null && name.length >= 3, 400, 'Name is invalid')
+  // check name
+  ctx.assert(name && name.length >= 2, 400, t('Name is invalid'))
 
-  ctx.assert(password != null && password.length >= 6,
-    400, 'Password is too short. it must be at least 6 characters.')
+  ctx.assert(password && password.length >= 6,
+    400, t('Password is too short, it must be at least 6 characters'))
 
   // normalize email
-  ctx.assert(email != null && isemail.validate(email), 400, 'Email is invalid')
+  ctx.assert(email && isemail.validate(email), 400, t('Email is invalid'))
 
   const isDisposable = await Email.isDisposable(email)
-  ctx.assert(isDisposable === false, 400, 'You are not allowed to use temporary emails')
+  ctx.assert(isDisposable === false, 400, t('You are not allowed to use temporary emails'))
 
   // normalize email address
   const normalizedEmail = Email.normalize(email)
@@ -31,8 +34,7 @@ router.post('/user/signup', bodyParser(), async function (ctx, next) {
     email: normalizedEmail
   })
 
-  ctx.assert(user == null,
-    400, 'An account with this email already exists, enter another email.')
+  ctx.assert(user == null, 400, t('An account with this email already exists, enter another email'))
 
   user = await User.create({
     name: name,
