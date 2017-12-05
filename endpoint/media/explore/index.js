@@ -43,8 +43,8 @@ router.post('/media/explore', bodyParser(), async function(ctx) {
     }
   }
 
-  const waitTime = await User.verifySubscription(ctx.identity.user_id, ctx.locale)
-  ctx.assert(waitTime === 0, 402, ctx.t('Subscription Expired', { waitTime }))
+  // const waitTime = await User.verifySubscription(ctx.identity.user_id, ctx.locale)
+  // ctx.assert(waitTime === 0, 402, ctx.t('Subscription Expired', { waitTime }))
 
   // log user request in database
   dbLog.create(ctx.identity.user_id, 'explore', url)
