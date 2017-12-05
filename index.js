@@ -37,7 +37,7 @@ module.exports = function api() {
   app.proxy = true
 
   app.use(cors({
-    origin: () => (process.env.NODE_ENV) !== 'production' ? '*' : false,
+    origin: () => (process.env.NODE_ENV) !== 'production' ? '*' : '*.savevideobot.com',
     maxAge: 5,
     credentials: true,
     allowMethods: ['GET', 'POST']
