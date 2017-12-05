@@ -9,6 +9,7 @@ const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
 const config = require('./config.json')
+const corsConfig = require('./cors.json')
 
 // enable system monitors
 require('./admin/monitor')
@@ -37,7 +38,8 @@ module.exports = function api() {
   app.proxy = true
 
   app.use(cors({
-    origin: () => (process.env.NODE_ENV) !== 'production' ? '*' : '*.savevideobot.com',
+    origin: (ctx) => (process.env.NODE_ENV !== 'production') ? '*' :
+      corsConfig.domains.indexOf(ctx.headers.origin) > -1,
     maxAge: 5,
     credentials: true,
     allowMethods: ['GET', 'POST']
