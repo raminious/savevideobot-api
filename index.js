@@ -38,8 +38,13 @@ module.exports = function api() {
   app.proxy = true
 
   app.use(cors({
-    origin: (ctx) => (process.env.NODE_ENV !== 'production') ? '*' :
-      corsConfig.domains.indexOf(ctx.headers.origin) > -1,
+    origin: (ctx) => {
+      if (process.env.NODE_ENV === 'production') {
+        return corsConfig.domains.indexOf(ctx.headers.origin) > -1 ? '*' : false
+      } else {
+        return '*'
+      }
+    },
     maxAge: 5,
     credentials: true,
     allowMethods: ['GET', 'POST']
