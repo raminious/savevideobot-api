@@ -27,6 +27,7 @@ const schema = new Schema({
   server_id: String,
   worker: String,
   formats: [Schema.Types.Mixed],
+  tags: [String],
   note: String,
   status: String,
 }, {
@@ -39,7 +40,7 @@ module.exports = {
 
   getStreamServer: function(server) {
 
-    if (process.env.NODE_ENV != 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       return 'http://127.0.0.1:19001'
     }
 
@@ -74,6 +75,7 @@ module.exports = {
       expired: expired || media.status == 'failed',
       worker: media.worker,
       note: media.note,
+      tags: media.tags,
       status: expired ? 'expired' : media.status
     }
 
@@ -110,7 +112,7 @@ module.exports = {
 
     return await list
   },
-  live: async function(limit = 15) {
+  live: async function(limit = 20) {
     const list = await Media
       .find({ status: 'ready' })
       .lean()
