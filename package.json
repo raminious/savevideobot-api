@@ -42,6 +42,7 @@
     "request": "^2.83.0",
     "superagent": "^3.8.1",
     "superagent-retry": "^0.6.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "zarinpal-checkout": "^0.2.7"
   }
 }

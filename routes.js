@@ -1,4 +1,5 @@
 const _ = require('underscore')
+
 const list = [{ path: './endpoint/authentication' }]
 
 const routes = {
@@ -8,6 +9,14 @@ const routes = {
     { path: 'remove-token' },
     { path: 'profile' },
     { path: 'info' },
+  ],
+  payment: [
+    { path: 'pricing', auth: false },
+    { path: 'callback/payir', auth: false },
+    { path: 'callback/zarinpal', auth: false },
+    { path: 'callback/perfectmoney', auth: false },
+    { path: 'status' },
+    { path: 'create' }
   ],
   verify: [
     { path: 'send-email' },
@@ -42,7 +51,7 @@ const routes = {
 _.each(routes, (group, name) => {
   _.each(group, r => {
 
-    let item = {
+    const item = {
       path: `./endpoint/${name}/${r.path}`
     }
 
