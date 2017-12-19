@@ -2,7 +2,7 @@ const crypto = require('crypto')
 const config = require('../../../config.json')
 
 const PerfectMoney = {
-  account: 'U11459326',
+  account: 'U15083786',
   PASSPHRASE: 'C1787A35E61C10E7C8B4FF93904A2EA9'
 }
 
