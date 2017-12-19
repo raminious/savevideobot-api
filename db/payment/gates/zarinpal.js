@@ -1,7 +1,9 @@
 const Gateway = require('zarinpal-checkout')
 const config = require('../../../config.json')
 
-const ZarinPal = {}
+const ZarinPal = {
+  key: '8926607a-04bb-11e6-ae78-005056a205be'
+}
 
 const env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 const environment = {
@@ -14,7 +16,7 @@ const environment = {
 }
 
 // create gateway instance
-const payment = Gateway.create('8926607a-04bb-11e6-ae78-005056a205be', env !== 'production')
+const payment = Gateway.create(ZarinPal.key, env !== 'production')
 
 ZarinPal.request = function(transactionId, user, period, amount) {
   const amountInTomans = amount * config.pricing.rates.USDIRT // In Tomans
