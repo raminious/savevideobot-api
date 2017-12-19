@@ -11,6 +11,7 @@ router.get('/payment/callback/zarinpal', bodyParser(), async function (ctx, next
   const { Authority, Status } = ctx.query
 
   const payment = await Payment.findOne({
+    gate: 'zarinpal',
     authCode: Authority,
     status: 'Pending'
   })

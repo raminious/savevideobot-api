@@ -15,6 +15,8 @@ const routes = {
     { path: 'callback/payir', auth: false },
     { path: 'callback/zarinpal', auth: false },
     { path: 'callback/perfectmoney', auth: false },
+    { path: 'callback/webmoney', auth: false },
+    { path: 'callback/bitcoin', auth: false },
     { path: 'status' },
     { path: 'create' }
   ],

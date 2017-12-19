@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const config = require('../../../config.json')
 
 const PerfectMoney = {
@@ -15,7 +16,7 @@ const environment = {
   }
 }
 
-PerfectMoney.request = async function(transactionId, user, period, amount) {
+PerfectMoney.request = function(transactionId, user, period, amount) {
   const callback = `${environment[env].callback}/payment/callback/perfectmoney`
 
   return {
@@ -39,8 +40,25 @@ PerfectMoney.request = async function(transactionId, user, period, amount) {
   }
 }
 
-PerfectMoney.verify = async function() {
+PerfectMoney.verify = function(fields, amount) {
+  const { PAYEE_ACCOUNT, PAYMENT_AMOUNT, PAYMENT_UNITS, PAYMENT_BATCH_NUM,
+    PAYMENT_ID, SUGGESTED_MEMO, V2_HASH, TIMESTAMPGMT, PAYER_ACCOUNT} = fields
 
+  // create hash string
+  const data = (`${PAYMENT_ID}:${PAYEE_ACCOUNT}:${PAYMENT_AMOUNT}:${PAYMENT_UNITS}:${PAYMENT_BATCH_NUM}` +
+    `:${PAYER_ACCOUNT}:${PerfectMoney.PASSPHRASE}:${TIMESTAMPGMT}`)
+
+  // create hash
+  const generatedHash = crypto
+    .createHash('md5')
+    .update(data)
+    .digest('hex')
+    .toUpperCase()
+
+  return generatedHash === V2_HASH &&
+    PAYEE_ACCOUNT === PerfectMoney.account &&
+    PAYMENT_UNITS === 'USD' &&
+    PAYMENT_AMOUNT === amount.toString()
 }
 
 module.exports = PerfectMoney

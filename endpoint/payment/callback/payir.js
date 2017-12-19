@@ -11,6 +11,7 @@ router.post('/payment/callback/payir', bodyParser(), async function (ctx, next) 
   const { status, transId, factorNumber, description, message } = ctx.request.body
 
   const payment = await Payment.findOne({
+    gate: 'payir',
     authCode: transId,
     transactionNumber: factorNumber,
     status: 'Pending'

@@ -34,10 +34,15 @@ module.exports = {
       .findOne(criteria)
       .lean()
   },
-  createTransactionNumber: function() {
+  createTransactionNumber: function(gate) {
     const ts = Math.floor(Date.now() / 1000)
-    const rnd = Math.floor(Math.random() * (999 - 100) + 100)
-    return `${ts}${rnd}`
+    const rnd = Math.floor(Math.random() * (99 - 10) + 10)
+
+    if (gate === 'webmoney') {
+      return ts
+    }
+
+    return`${ts}${rnd}`
   },
   update: async function(paymentId, attrs){
     return await Payment.findOneAndUpdate({ _id: paymentId }, attrs)

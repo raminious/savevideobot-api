@@ -31,7 +31,7 @@ router.post('/payment/create', bodyParser(), async function (ctx, next) {
   const amount = isProduction ? config.pricing.month[period].current : 0.1
 
   // create a uniq transaction number
-  const transactionId = Payment.createTransactionNumber()
+  const transactionId = Payment.createTransactionNumber(gate)
 
   // send payment request to gateway
   const result = await payments[gate].request(transactionId, user, period, amount)
