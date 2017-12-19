@@ -28,8 +28,7 @@ const schema = new Schema({
   worker: String,
   formats: [Schema.Types.Mixed],
   tags: [String],
-  note: String,
-  status: String,
+  note: String
 }, {
   timestamps: { created_at: 'created_at' }
 });
@@ -112,9 +111,15 @@ module.exports = {
 
     return await list
   },
-  live: async function(limit = 20) {
+  live: async function(since = null, limit = 20) {
+    const criteria = { status: 'ready' }
+
+    if (since) {
+      criteria.createdAt = { $gt: since }
+    }
+
     const list = await Media
-      .find({ status: 'ready' })
+      .find(criteria)
       .lean()
       .skip(0)
       .limit(limit)
