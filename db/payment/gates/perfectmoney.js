@@ -29,7 +29,6 @@ PerfectMoney.request = function(transactionId, user, period, amount) {
       PAYMENT_AMOUNT: amount,
       PAYMENT_UNITS: 'USD',
       PAYMENT_ID: transactionId,
-      STATUS_URL: `${callback}?status=STS`,
       PAYMENT_URL: `${callback}?status=OK`,
       PAYMENT_URL_METHOD: 'POST',
       NOPAYMENT_URL: `${callback}?status=NOK`,
