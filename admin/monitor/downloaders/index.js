@@ -9,7 +9,7 @@ const report = require('../../report/telegram')
 const list = config.service.downloader.cdn
 
 // check kue health
-const monitor = async function() {
+const monitor = async function () {
 	if (process.env.NODE_ENV !== 'production') {
 		return false
 	}
@@ -29,7 +29,7 @@ const monitor = async function() {
 			const stats = result.stats
 			const system = result.system
 
-			if (~~stats.active > 3 || ~~stats.delayed > 0) {
+			if (~~stats.active > 7 || ~~stats.failed > 5) {
 				let data = 'Inactive count: ' + stats.delayed +
 					'\nActive count: ' + stats.active +
 					'\nFailed count: ' + stats.failed +
@@ -52,9 +52,9 @@ const monitor = async function() {
  * cronjob for downserver check
  */
 new CronJob({
-  cronTime: '00 */10 * * * *',
-  onTick: async function () {
-    await monitor()
-  },
-  start: process.env.pm_id ? (process.env.pm_id == 0 ? true: false) : true
+	cronTime: '00 */05 * * * *',
+	onTick: async function () {
+		await monitor()
+	},
+	start: process.env.pm_id ? (process.env.pm_id == 0 ? true : false) : true
 })
