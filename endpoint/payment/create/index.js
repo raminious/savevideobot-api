@@ -28,8 +28,7 @@ router.post('/payment/create', bodyParser(), async function (ctx, next) {
   const user = await User.findById(ctx.identity.user_id)
 
   // get payment amount in USD
-  // const amount = isProduction ? config.pricing.month[period].current : 0.1
-  const amount = 0.03
+  const amount = isProduction ? config.pricing.month[period].current : 0.1
 
   // create a uniq transaction number
   const transactionId = Payment.createTransactionNumber(gate)
