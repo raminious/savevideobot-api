@@ -8,6 +8,7 @@ const path = require('path')
 const _ = require('underscore')
 const routes = require('./routes')
 const log = require('./log')
+const report = require('./admin/report/telegram')
 const config = require('./config.json')
 const corsConfig = require('./cors.json')
 
@@ -17,9 +18,7 @@ require('./admin/monitor')
 // enable media garbage collector
 const gc = require('./util/gc/media')
 
-i18next
-.use(i18nextBackend)
-.init({
+i18next.use(i18nextBackend).init({
   backend: {
     loadPath: path.resolve('./locales/{{lng}}/list.json')
   },
@@ -28,7 +27,7 @@ i18next
   joinArrays: true,
   lng: 'en',
   preload: ['en', 'fa'],
-  fallbackLng: 'en',
+  fallbackLng: 'en'
 })
 
 module.exports = function api() {
@@ -37,21 +36,25 @@ module.exports = function api() {
   // trust proxy
   app.proxy = true
 
-  app.use(cors({
-    origin: (ctx) => {
-      if (process.env.NODE_ENV === 'production') {
-        return corsConfig.domains.indexOf(ctx.headers.origin) > -1 ? '*' : false
-      } else {
-        return '*'
-      }
-    },
-    maxAge: 5,
-    credentials: true,
-    allowMethods: ['GET', 'POST']
-  }))
+  app.use(
+    cors({
+      origin: ctx => {
+        if (process.env.NODE_ENV === 'production') {
+          return corsConfig.domains.indexOf(ctx.headers.origin) > -1
+            ? '*'
+            : false
+        } else {
+          return '*'
+        }
+      },
+      maxAge: 5,
+      credentials: true,
+      allowMethods: ['GET', 'POST']
+    })
+  )
 
   // logger
-  app.use(async function (ctx, next){
+  app.use(async function(ctx, next) {
     ctx.log = log
     return await next()
   })
@@ -73,13 +76,12 @@ module.exports = function api() {
   app.use(async function(ctx, next) {
     try {
       return await next()
-    } catch(e) {
-
+    } catch (e) {
       // app requesting http authentication
       if (e.status == 401) {
         ctx.status = 401
-        ctx.set('WWW-Authenticate', 'Basic');
-        ctx.body = ctx.t('authentication required');
+        ctx.set('WWW-Authenticate', 'Basic')
+        ctx.body = ctx.t('authentication required')
         return false
       }
 
@@ -89,7 +91,12 @@ module.exports = function api() {
 
       // check application fatal errors
       if (e instanceof TypeError || e instanceof ReferenceError) {
-        ctx.log('fatal', 'api_fatal', { description: e.message, stack: e.stack })
+        ctx.log('fatal', 'api_fatal', {
+          description: e.message,
+          stack: e.stack
+        })
+
+        report.sendMessage(`[API Fatal] ${e.message} - ${e.stack}`)
       }
 
       ctx.status = e.status || 400
@@ -98,9 +105,7 @@ module.exports = function api() {
   })
 
   //routes
-  _.each(routes, r => app.use(
-    mount(require(r.path)))
-  )
+  _.each(routes, r => app.use(mount(require(r.path))))
 
   app.use(async function(ctx) {
     ctx.status = 404
