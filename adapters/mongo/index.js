@@ -4,7 +4,7 @@ const { dbName, username, password } = config.database.mongo
 
 const connectionString =
   username.length > 0
-    ? `mongodb://${username}:${encodeURI(password)}@127.0.0.1/${dbName}`
+    ? `mongodb://${username}:${encodeURIComponent(password)}@127.0.0.1/${dbName}`
     : `mongodb://localhost/${dbName}`
 
 const options = {
