@@ -10,9 +10,15 @@ const Media = require('../media')
 
 const Schema = db.Schema
 const schema = new Schema({
-  email: String,
+  email: {
+    type: String,
+    index: true
+  },
   email_confirmed: Boolean,
-  telegram_id: String,
+  telegram_id: {
+    type: String,
+    index: true
+  },
   name: String,
   password: String,
   localization: String,
